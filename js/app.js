@@ -24,6 +24,27 @@ function populateTopicSelector() {
 
 // Виклик при завантаженні сторінки
 populateTopicSelector();
+/* =====================
+  Блок: Dark mode
+===================== */
+const THEME_KEY = "ee-theme";
+
+function loadTheme() {
+  const theme = localStorage.getItem(THEME_KEY);
+  if (theme === "dark") {
+    document.body.classList.add("dark");
+    themeBtn.textContent = "☀️";
+  }
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  const isDark = document.body.classList.contains("dark");
+  localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
+  themeBtn.textContent = isDark ? "☀️" : "🌙";
+}
+
+loadTheme();
 
 /* =====================
   Блок: Вибір теми та завантаження карток
@@ -83,6 +104,12 @@ function dueCards() {
 function currentCard() {
   return dueCards()[0];
 }
+/* =====================
+  Блок: Leech detection
+===================== */
+function isLeech(card) {
+  return card.ease < 1.6;
+}
 
 /* =====================
   Блок: Рендер картки
@@ -92,8 +119,13 @@ function render() {
   const questionDiv = document.getElementById("question");
   const answerDiv = document.getElementById("answer");
 
+  // скидаємо переворот при новій картці
+  const flip = document.getElementById("flipCard");
+  if (flip) flip.classList.remove("flipped");
+
   if (!card) {
     questionDiv.textContent = "🎉 На сьогодні все!";
+
     answerDiv.classList.remove("show");
     updateStats();
     updateProgress();
@@ -102,6 +134,15 @@ function render() {
 
   const isDifficult = card.ease < 1.6;
   questionDiv.innerHTML = reverse ? card.a : card.q;
+  /* =====================
+  Блок: Leech highlight
+  ===================== */
+  if (isLeech(card)) {
+    questionDiv.classList.add("difficult");
+  } else {
+    questionDiv.classList.remove("difficult");
+  }
+
   answerDiv.innerHTML = reverse ? card.q : card.a;
   answerDiv.classList.remove("show");
 
@@ -113,16 +154,11 @@ function render() {
 }
 
 /* =====================
-  Блок: Показати/Сховати відповідь
+  Блок: Flip card
 ===================== */
 function toggleAnswer() {
-  const card = currentCard();
-  const answerDiv = document.getElementById("answer");
-  if (!card) {
-    answerDiv.classList.remove("show");
-    return;
-  }
-  answerDiv.classList.toggle("show");
+  const flip = document.getElementById("flipCard");
+  flip.classList.toggle("flipped");
 }
 
 /* =====================
@@ -145,41 +181,70 @@ function grade(score) {
 
   card.interval = Math.round(card.interval);
   card.due = Date.now() + card.interval * DAY;
+  const history = loadHistory();
 
+  history.push({
+    time: Date.now(),
+    score,
+  });
+
+  saveHistory(history);
   save();
   render();
 }
 
 /* =====================
-  Блок: Статистика з підсвіткою
+  Блок: Статистика по днях
 ===================== */
 function updateStats() {
-  const total = cards.length;
-  const learned = cards.filter((c) => c.seen).length;
-  const today = dueCards().length;
-  const correct = cards.filter((c) => c.seen && c.interval > 1).length;
-  const percent = total ? Math.round((correct / total) * 100) : 0;
+  const history = loadHistory();
+  const now = new Date();
 
-  stats.textContent = `📚 Всього: ${total} | ✔️ Вивчено: ${learned} | ⏱ Сьогодні: ${today} | ✅ ${percent}% правильних`;
+  // допоміжна функція: чи один і той самий день
+  function isSameDay(d1, d2) {
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  }
 
-  let wordStatsHTML = "<br><b>Детальна статистика по словах:</b><br>";
-  cards
-    .filter((c) => c.seen)
-    .forEach((c) => {
-      const attempts = c.attempts || 0;
-      const correctCount = c.correct || 0;
-      const wordPercent = attempts
-        ? Math.round((correctCount / attempts) * 100)
-        : 0;
+  let today = 0;
+  let yesterday = 0;
+  let last7 = 0;
 
-      let color = "red";
-      if (wordPercent > 70) color = "green";
-      else if (wordPercent >= 40) color = "orange";
+  let todayCorrect = 0;
+  let todayWrong = 0;
 
-      wordStatsHTML += `<span style="color:${color}">${c.q} → ${c.a}: ${correctCount}/${attempts} ✅ (${wordPercent}%)</span><br>`;
-    });
+  history.forEach((entry) => {
+    const d = new Date(entry.time);
 
-  stats.innerHTML = stats.textContent + wordStatsHTML;
+    // сьогодні
+    if (isSameDay(d, now)) {
+      today++;
+
+      if (entry.score >= 2) todayCorrect++;
+      else todayWrong++;
+    }
+
+    // вчора
+    const y = new Date(now);
+    y.setDate(y.getDate() - 1);
+    if (isSameDay(d, y)) {
+      yesterday++;
+    }
+
+    // останні 7 днів
+    const diffDays = (now - d) / 86400000;
+    if (diffDays <= 7) {
+      last7++;
+    }
+  });
+  const leechCount = leechTodayCount();
+  stats.textContent = `🧠 Складні сьогодні: ${leechCount}
+📅 Сьогодні: ${today} (${todayCorrect} ✔️ / ${todayWrong} ❌)
+Вчора: ${yesterday}
+7 днів: ${last7}`;
 }
 
 /* =====================
@@ -220,6 +285,41 @@ function importProgress(file) {
     }
   };
   reader.readAsText(file);
+}
+/* =====================
+  Блок: Історія відповідей
+===================== */
+const HISTORY_KEY = "ee-history";
+
+function loadHistory() {
+  return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+}
+
+function saveHistory(history) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+/* =====================
+  Блок: Leech detection
+===================== */
+function isLeech(card) {
+  return card.ease < 1.6;
+}
+/* =====================
+  Блок: Leech stats
+===================== */
+function leechTodayCount() {
+  const history = loadHistory();
+  const today = new Date();
+
+  return history.filter((h) => {
+    const d = new Date(h.time);
+    return (
+      d.getFullYear() === today.getFullYear() &&
+      d.getMonth() === today.getMonth() &&
+      d.getDate() === today.getDate() &&
+      h.score < 2
+    );
+  }).length;
 }
 
 /* =====================

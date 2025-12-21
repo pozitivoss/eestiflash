@@ -13,125 +13,9 @@
     <!-- =====================
     Styles
   ===================== -->
-    <style>
-      /* ===== Base ===== */
-      body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        background: #f4f4f4;
-        margin: 0;
-        padding: 12px;
-        min-height: 100vh;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      /* ===== Card ===== */
-      .card {
-        background: white;
-        width: 100%;
-        max-width: 380px;
-        padding: 16px;
-        border-radius: 16px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-        text-align: center;
-      }
-
-      /* ===== Topic selector ===== */
-      .topic-select {
-        margin-bottom: 12px;
-      }
-
-      select {
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-        border-radius: 10px;
-      }
-
-      /* ===== Question / Answer ===== */
-      h3 {
-        font-size: 22px;
-        margin: 10px 0;
-      }
-
-      .answer {
-        margin-top: 8px;
-        font-size: 18px;
-        color: #555;
-        display: none;
-      }
-
-      .answer.show {
-        display: block;
-      }
-
-      /* ===== Buttons ===== */
-      button {
-        padding: 12px 16px;
-        font-size: 16px;
-        border-radius: 12px;
-        border: none;
-        background: #eaeaea;
-        cursor: pointer;
-      }
-
-      button:active {
-        transform: scale(0.97);
-      }
-
-      .top-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-bottom: 8px;
-      }
-
-      /* ===== Stats ===== */
-      .stats {
-        margin-top: 10px;
-        font-size: 13px;
-        color: #666;
-        text-align: left;
-      }
-
-      /* ===== Sticky grade bar ===== */
-      .grade-bar {
-        display: flex;
-        gap: 8px;
-        margin-top: 12px;
-      }
-
-      @media (max-width: 600px) {
-        .grade-bar {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          padding: 10px;
-          background: white;
-          box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
-          z-index: 1000;
-        }
-
-        body {
-          padding-bottom: 90px;
-        }
-
-        .grade-bar button {
-          flex: 1;
-          font-size: 20px;
-        }
-      }
-
-      /* ===== Hint ===== */
-      .hint {
-        font-size: 12px;
-        color: #777;
-        margin-top: 6px;
-      }
-    </style>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#121212" />
   </head>
 
   <body>
@@ -140,6 +24,7 @@
       Topic selector
     ===================== -->
       <div class="topic-select">
+        <button onclick="toggleTheme()" id="themeBtn">🌙</button>
         <select id="topics" onchange="selectTopic(this.value)">
           <option value="" disabled selected>📚 Оберіть тему</option>
         </select>
@@ -148,9 +33,20 @@
       <!-- =====================
       Question & Answer
     ===================== -->
-      <h3 id="question">Оберіть тему</h3>
+      <!-- =====================
+  Card content
+===================== -->
+      <div class="flip-card">
+        <div class="flip-inner" id="flipCard">
+          <div class="flip-front">
+            <h3 id="question"></h3>
+          </div>
 
-      <div id="answer" class="answer"></div>
+          <div class="flip-back">
+            <div id="answer"></div>
+          </div>
+        </div>
+      </div>
 
       <!-- =====================
       Top buttons
@@ -158,6 +54,7 @@
       <div class="top-buttons">
         <button onclick="toggleAnswer()">Показати</button>
         <button onclick="reverse = !reverse; render()">🔄</button>
+        <button onclick="location.href='stats.html'">📊</button>
       </div>
 
       <div class="hint">⬅️ ❌ &nbsp; ⬆️ 😎 &nbsp; ➡️ 🙂 &nbsp; ⬇️ 🤔</div>
@@ -181,7 +78,8 @@
     <!-- =====================
     Scripts
   ===================== -->
-    <script src="words.js"></script>
-    <script src="app.js"></script>
+    <script src="data/words.js"></script>
+    <script src="js/app.js"></script>
+    <meta name="theme-color" content="#121212" />
   </body>
 </html>
