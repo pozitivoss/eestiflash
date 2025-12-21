@@ -86,9 +86,12 @@
       <!-- =====================
        Блок: Вибір теми
   ====================== -->
-      <label for="topic">Оберіть тему:</label>
-      <select id="topic"></select>
-      <br />
+      <div id="topicSelector" style="margin-bottom: 10px">
+        <label for="topics">Оберіть тему: </label>
+        <select id="topics" onchange="selectTopic(this.value)">
+          <option value="" disabled selected>-- виберіть тему --</option>
+        </select>
+      </div>
 
       <!-- =====================
        Блок: Питання та відповідь

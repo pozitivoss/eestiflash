@@ -10,10 +10,32 @@ let selectedTopic = null;
 let cards = [];
 
 /* =====================
-  Блок: Вибір теми
+  Блок: Заповнення списку тем
+===================== */
+function populateTopicSelector() {
+  const selector = document.getElementById("topics");
+  Object.keys(BASE_WORDS).forEach((topic) => {
+    const option = document.createElement("option");
+    option.value = topic;
+    option.textContent = topic;
+    selector.appendChild(option);
+  });
+}
+
+// Виклик при завантаженні сторінки
+populateTopicSelector();
+
+/* =====================
+  Блок: Вибір теми та завантаження карток
 ===================== */
 function selectTopic(topic) {
   selectedTopic = topic;
+
+  // Завантажуємо збережені дані для цієї теми
+  const saved =
+    JSON.parse(localStorage.getItem(`${STORAGE_KEY}-${topic}`)) || [];
+
+  // Створюємо нові картки з BASE_WORDS
   const topicCards = BASE_WORDS[topic].map(([q, a]) => ({
     q,
     a,
@@ -25,10 +47,11 @@ function selectTopic(topic) {
     correct: 0,
   }));
 
-  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  // Об’єднуємо збережене і нові картки
   cards = topicCards.map(
     (tc) => saved.find((c) => c.q === tc.q && c.a === tc.a) || tc
   );
+
   cards = shuffle(cards);
   save();
   render();
@@ -38,14 +61,18 @@ function selectTopic(topic) {
   Блок: Збереження та тасування
 ===================== */
 function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+  if (!selectedTopic) return;
+  localStorage.setItem(
+    `${STORAGE_KEY}-${selectedTopic}`,
+    JSON.stringify(cards)
+  );
 }
 function shuffle(arr) {
   return arr.sort(() => Math.random() - 0.5);
 }
 
 /* =====================
-  Блок: Картки для повторення (оновлений)
+  Блок: Картки для повторення
 ===================== */
 function dueCards() {
   const now = Date.now();
@@ -133,10 +160,8 @@ function updateStats() {
   const correct = cards.filter((c) => c.seen && c.interval > 1).length;
   const percent = total ? Math.round((correct / total) * 100) : 0;
 
-  // Основна статистика
   stats.textContent = `📚 Всього: ${total} | ✔️ Вивчено: ${learned} | ⏱ Сьогодні: ${today} | ✅ ${percent}% правильних`;
 
-  // Детальна статистика по словах (тільки переглянуті картки)
   let wordStatsHTML = "<br><b>Детальна статистика по словах:</b><br>";
   cards
     .filter((c) => c.seen)
@@ -147,7 +172,6 @@ function updateStats() {
         ? Math.round((correctCount / attempts) * 100)
         : 0;
 
-      // Визначаємо колір
       let color = "red";
       if (wordPercent > 70) color = "green";
       else if (wordPercent >= 40) color = "orange";
