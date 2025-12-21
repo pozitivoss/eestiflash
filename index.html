@@ -2,81 +2,134 @@
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
-    <title>Estonian Flashcards</title>
 
+    <!-- =====================
+    Mobile viewport
+  ===================== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Eesti Flashcards</title>
+
+    <!-- =====================
+    Styles
+  ===================== -->
     <style>
-      /* =====================
-  Блок: Основні стилі
-===================== */
+      /* ===== Base ===== */
       body {
-        font-family: system-ui, sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         background: #f4f4f4;
+        margin: 0;
+        padding: 12px;
+        min-height: 100vh;
+
         display: flex;
         justify-content: center;
-        align-items: flex-start;
-        padding-top: 40px;
+        align-items: center;
       }
 
+      /* ===== Card ===== */
       .card {
         background: white;
-        padding: 20px;
-        width: 360px;
-        border-radius: 14px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        width: 100%;
+        max-width: 380px;
+        padding: 16px;
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
         text-align: center;
-        position: relative;
       }
 
-      .answer {
-        margin-top: 10px;
-        max-height: 0;
-        overflow: hidden;
-        color: #555;
-        transition: max-height 0.3s ease, opacity 0.3s ease;
-        opacity: 0;
-      }
-
-      .answer.show {
-        max-height: 100px;
-        opacity: 1;
-      }
-
-      button {
-        margin: 4px;
-        padding: 8px 12px;
+      /* ===== Topic selector ===== */
+      .topic-select {
+        margin-bottom: 12px;
       }
 
       select {
-        margin-bottom: 10px;
-        padding: 6px 10px;
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 10px;
       }
 
+      /* ===== Question / Answer ===== */
+      h3 {
+        font-size: 22px;
+        margin: 10px 0;
+      }
+
+      .answer {
+        margin-top: 8px;
+        font-size: 18px;
+        color: #555;
+        display: none;
+      }
+
+      .answer.show {
+        display: block;
+      }
+
+      /* ===== Buttons ===== */
+      button {
+        padding: 12px 16px;
+        font-size: 16px;
+        border-radius: 12px;
+        border: none;
+        background: #eaeaea;
+        cursor: pointer;
+      }
+
+      button:active {
+        transform: scale(0.97);
+      }
+
+      .top-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      /* ===== Stats ===== */
       .stats {
         margin-top: 10px;
-        font-size: 14px;
+        font-size: 13px;
         color: #666;
+        text-align: left;
       }
 
-      .progress-bar {
-        height: 8px;
-        width: 100%;
-        background: #eee;
-        border-radius: 4px;
-        margin-top: 10px;
-        overflow: hidden;
+      /* ===== Sticky grade bar ===== */
+      .grade-bar {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
       }
 
-      .progress-fill {
-        height: 100%;
-        width: 0%;
-        background: #4caf50;
-        transition: width 0.3s ease;
+      @media (max-width: 600px) {
+        .grade-bar {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding: 10px;
+          background: white;
+          box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+          z-index: 1000;
+        }
+
+        body {
+          padding-bottom: 90px;
+        }
+
+        .grade-bar button {
+          flex: 1;
+          font-size: 20px;
+        }
       }
 
-      .difficult {
-        background: #ffdede;
-        border-radius: 4px;
-        padding: 2px 4px;
+      /* ===== Hint ===== */
+      .hint {
+        font-size: 12px;
+        color: #777;
+        margin-top: 6px;
       }
     </style>
   </head>
@@ -84,79 +137,51 @@
   <body>
     <div class="card">
       <!-- =====================
-       Блок: Вибір теми
-  ====================== -->
-      <div id="topicSelector" style="margin-bottom: 10px">
-        <label for="topics">Оберіть тему: </label>
+      Topic selector
+    ===================== -->
+      <div class="topic-select">
         <select id="topics" onchange="selectTopic(this.value)">
-          <option value="" disabled selected>-- виберіть тему --</option>
+          <option value="" disabled selected>📚 Оберіть тему</option>
         </select>
       </div>
 
       <!-- =====================
-       Блок: Питання та відповідь
-  ====================== -->
-      <h3 id="question"></h3>
+      Question & Answer
+    ===================== -->
+      <h3 id="question">Оберіть тему</h3>
+
       <div id="answer" class="answer"></div>
 
       <!-- =====================
-       Блок: Кнопки управління
-  ====================== -->
-      <button onclick="toggleAnswer()">Показати</button>
-      <button id="reverseBtn">🔄 Реверс</button>
-      <br />
+      Top buttons
+    ===================== -->
+      <div class="top-buttons">
+        <button onclick="toggleAnswer()">Показати</button>
+        <button onclick="reverse = !reverse; render()">🔄</button>
+      </div>
+
+      <div class="hint">⬅️ ❌ &nbsp; ⬆️ 😎 &nbsp; ➡️ 🙂 &nbsp; ⬇️ 🤔</div>
+
+      <!-- =====================
+      Stats
+    ===================== -->
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <!-- =====================
+    Grade buttons
+  ===================== -->
+    <div class="grade-bar">
       <button onclick="grade(0)">❌</button>
       <button onclick="grade(1)">🤔</button>
       <button onclick="grade(2)">🙂</button>
       <button onclick="grade(3)">😎</button>
-      <br />
-      <button onclick="exportProgress()">📤 Експорт прогресу</button>
-      <input
-        type="file"
-        id="importFile"
-        onchange="importProgress(this.files[0])"
-      />
-
-      <!-- =====================
-       Блок: Прогресбар та статистика
-  ====================== -->
-      <div class="progress-bar">
-        <div id="progressFill" class="progress-fill"></div>
-      </div>
-      <div class="stats" id="stats"></div>
     </div>
 
+    <!-- =====================
+    Scripts
+  ===================== -->
     <script src="words.js"></script>
     <script src="app.js"></script>
-    <script>
-      /* =====================
-        Блок: Ініціалізація теми select
-      ===================== */
-      const topicSelect = document.getElementById("topic");
-      Object.keys(BASE_WORDS).forEach((t) => {
-        const opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t.charAt(0).toUpperCase() + t.slice(1);
-        topicSelect.appendChild(opt);
-      });
-      topicSelect.addEventListener("change", () =>
-        selectTopic(topicSelect.value)
-      );
-
-      // Старт: перша тема за замовчуванням
-      selectTopic(topicSelect.value || Object.keys(BASE_WORDS)[0]);
-
-      /* =====================
-      // Блок: Реверс кнопка
-      ===================== */
-      const reverseBtn = document.getElementById("reverseBtn");
-      reverseBtn.addEventListener("click", () => {
-        reverse = !reverse;
-        render();
-        reverseBtn.textContent = reverse
-          ? "🔄 Українська → Естонська"
-          : "🔄 Естонська → Українська";
-      });
-    </script>
   </body>
 </html>
