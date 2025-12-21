@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Estonian Flashcards</title>
+
+    <style>
+      /* =====================
+  Блок: Основні стилі
+===================== */
+      body {
+        font-family: system-ui, sans-serif;
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 40px;
+      }
+
+      .card {
+        background: white;
+        padding: 20px;
+        width: 360px;
+        border-radius: 14px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        position: relative;
+      }
+
+      .answer {
+        margin-top: 10px;
+        max-height: 0;
+        overflow: hidden;
+        color: #555;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        opacity: 0;
+      }
+
+      .answer.show {
+        max-height: 100px;
+        opacity: 1;
+      }
+
+      button {
+        margin: 4px;
+        padding: 8px 12px;
+      }
+
+      select {
+        margin-bottom: 10px;
+        padding: 6px 10px;
+      }
+
+      .stats {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .progress-bar {
+        height: 8px;
+        width: 100%;
+        background: #eee;
+        border-radius: 4px;
+        margin-top: 10px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: #4caf50;
+        transition: width 0.3s ease;
+      }
+
+      .difficult {
+        background: #ffdede;
+        border-radius: 4px;
+        padding: 2px 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <!-- =====================
+       Блок: Вибір теми
+  ====================== -->
+      <label for="topic">Оберіть тему:</label>
+      <select id="topic"></select>
+      <br />
+
+      <!-- =====================
+       Блок: Питання та відповідь
+  ====================== -->
+      <h3 id="question"></h3>
+      <div id="answer" class="answer"></div>
+
+      <!-- =====================
+       Блок: Кнопки управління
+  ====================== -->
+      <button onclick="toggleAnswer()">Показати</button>
+      <button id="reverseBtn">🔄 Реверс</button>
+      <br />
+      <button onclick="grade(0)">❌</button>
+      <button onclick="grade(1)">🤔</button>
+      <button onclick="grade(2)">🙂</button>
+      <button onclick="grade(3)">😎</button>
+      <br />
+      <button onclick="exportProgress()">📤 Експорт прогресу</button>
+      <input
+        type="file"
+        id="importFile"
+        onchange="importProgress(this.files[0])"
+      />
+
+      <!-- =====================
+       Блок: Прогресбар та статистика
+  ====================== -->
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <script src="words.js"></script>
+    <script src="app.js"></script>
+    <script>
+      /* =====================
+        Блок: Ініціалізація теми select
+      ===================== */
+      const topicSelect = document.getElementById("topic");
+      Object.keys(BASE_WORDS).forEach((t) => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+        topicSelect.appendChild(opt);
+      });
+      topicSelect.addEventListener("change", () =>
+        selectTopic(topicSelect.value)
+      );
+
+      // Старт: перша тема за замовчуванням
+      selectTopic(topicSelect.value || Object.keys(BASE_WORDS)[0]);
+
+      /* =====================
+      // Блок: Реверс кнопка
+      ===================== */
+      const reverseBtn = document.getElementById("reverseBtn");
+      reverseBtn.addEventListener("click", () => {
+        reverse = !reverse;
+        render();
+        reverseBtn.textContent = reverse
+          ? "🔄 Українська → Естонська"
+          : "🔄 Естонська → Українська";
+      });
+    </script>
+  </body>
+</html>
