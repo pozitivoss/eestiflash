@@ -23,12 +23,12 @@ const BASE_WORDS = {
     ["küsin", "питати"],
     ["kohe", "негайно, зараз, тотчас"],
     ["hiljem", "пізніше"],
-    ["võib-olla", "питати"],
+    ["võib-olla", "може бути"],
   ],
   "11 Tund": [
     ["kallis, kalli, kallist", "дорогий"],
     ["seisan", "стою"],
-    ["eelkooliealine", "дошкілята"][("lähim", "найближчий")],
-    ["küsin", "питати"],
+    ["eelkooliealine", "дошкілята"],
+    [("lähim", "найближчий")],
   ],
 };
