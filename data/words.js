@@ -29,6 +29,6 @@ const BASE_WORDS = {
     ["kallis, kalli, kallist", "дорогий"],
     ["seisan", "стою"],
     ["eelkooliealine", "дошкілята"],
-    [("lähim", "найближчий")],
+    ["lähim", "найближчий"],
   ],
 };
