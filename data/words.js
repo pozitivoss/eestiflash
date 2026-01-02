@@ -25,10 +25,23 @@ const BASE_WORDS = {
     ["hiljem", "пізніше"],
     ["võib-olla", "може бути"],
   ],
-  "11 Tund": [
+  "11 Kui palju pilet maksab?": [
     ["kallis, kalli, kallist", "дорогий"],
     ["seisan", "стою"],
     ["eelkooliealine", "дошкілята"],
     ["lähim", "найближчий"],
+    ["kuj palju", "скільки (щодо грошей)"],
+    ["kokku", "всього, разом"],
+    ["sooduspilet", "льготний квиток"],
+    ["täispilet", "повний квиток"],
+    ["kust", "звідки"],
+
+  ],
+  "12 Tund": [
+    ["sadam -a -at", "порт"],
+    ["soovi/ma -da -n", ""],
+    ["telli/ma -da -n", ""],
+    ["pärast", ""],
+    ["võlgne/ma -da -n", ""],
   ],
 };

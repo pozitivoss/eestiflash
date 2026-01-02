@@ -8,6 +8,11 @@ const NEW_WORDS_PER_DAY = 10;
 let reverse = false;
 let selectedTopic = null;
 let cards = [];
+/* =====================
+  Блок: Режим повторення
+===================== */
+let repeatMode = false;
+let repeatQueue = [];
 
 /* =====================
   Блок: Заповнення списку тем
@@ -101,9 +106,58 @@ function dueCards() {
   const newCards = cards.filter((c) => !c.seen && c.due > now);
   return [...overdue, ...newCards.slice(0, NEW_WORDS_PER_DAY)];
 }
+/* =====================
+  Блок: Поточна картка
+===================== */
 function currentCard() {
+  if (repeatMode) {
+    return repeatQueue[0] || null;
+  }
   return dueCards()[0];
 }
+/* =====================
+  Блок: Повторення за сьогодні
+===================== */
+function repeatToday() {
+  const todayStart = new Date().setHours(0, 0, 0, 0);
+
+  repeatQueue = cards.filter(c =>
+    c.seen &&
+    c.lastSeen &&
+    c.lastSeen >= todayStart
+  );
+
+  if (repeatQueue.length === 0) {
+    alert("Немає слів для повторення сьогодні 🙂");
+    return;
+  }
+
+  repeatMode = true;
+  render();
+}
+/* =====================
+  Блок: Повторення складних
+===================== */
+function repeatDifficult() {
+  repeatQueue = cards.filter(c => c.ease < 1.6);
+
+  if (repeatQueue.length === 0) {
+    alert("Немає складних слів 🎉");
+    return;
+  }
+
+  repeatMode = true;
+  render();
+}
+/* =====================
+  Блок: Вихід з повторення
+===================== */
+function exitRepeat() {
+  repeatMode = false;
+  repeatQueue = [];
+  render();
+}
+
 /* =====================
   Блок: Leech detection
 ===================== */
@@ -168,10 +222,13 @@ function grade(score) {
   const card = currentCard();
   if (!card) return;
 
+  /* ===== Блок: фіксація факту показу ===== */
   card.seen = true;
+  card.lastSeen = Date.now(); // ← потрібно для повторення
   card.attempts = (card.attempts || 0) + 1;
   if (score >= 2) card.correct = (card.correct || 0) + 1;
 
+  /* ===== Блок: SM-2 логіка ===== */
   if (score === 0)
     (card.interval = 1), (card.ease = Math.max(1.3, card.ease - 0.2));
   if (score === 1)
@@ -181,17 +238,19 @@ function grade(score) {
 
   card.interval = Math.round(card.interval);
   card.due = Date.now() + card.interval * DAY;
-  const history = loadHistory();
 
+  /* ===== Блок: історія відповідей ===== */
+  const history = loadHistory();
   history.push({
     time: Date.now(),
     score,
   });
-
   saveHistory(history);
+
   save();
   render();
 }
+
 
 /* =====================
   Блок: Статистика по днях
