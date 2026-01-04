@@ -82,6 +82,37 @@ function shuffle(arr) {
 }
 
 /* =====================
+  Блок: Dark mode
+===================== */
+document.addEventListener("DOMContentLoaded", () => {
+  const themeBtn = document.getElementById("themeBtn");
+  if (!themeBtn) return;
+
+  const THEME_KEY = "ee-theme";
+
+  function loadTheme() {
+    const theme = localStorage.getItem(THEME_KEY);
+    if (theme === "dark") {
+      document.body.classList.add("dark");
+      themeBtn.textContent = "☀️";
+    } else {
+      document.body.classList.remove("dark");
+      themeBtn.textContent = "🌙";
+    }
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
+    themeBtn.textContent = isDark ? "☀️" : "🌙";
+  }
+
+  themeBtn.addEventListener("click", toggleTheme);
+
+  loadTheme();
+});
+/* =====================
   Черга карток
 ===================== */
 function dueCards() {
@@ -171,7 +202,8 @@ function render() {
   Flip
 ===================== */
 function toggleAnswer() {
-  document.getElementById("answer").classList.toggle("show");
+  const inner = document.querySelector("#flipCard .flip-inner");
+  if(inner) inner.classList.toggle("flipped");
 }
 
 /* =====================
@@ -268,3 +300,4 @@ document.addEventListener("keydown", e => {
     render();
   }
 });
+document.getElementById("flipCard").classList.toggle("flipped")
