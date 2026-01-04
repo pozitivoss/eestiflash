@@ -2,7 +2,7 @@
   Блок: База слів за темами
 ===================== */
 const BASE_WORDS = {
-  "9 Tund": [
+  "9 Kus sa praegu oled?": [
     ["ütlen", "сказати"],
     ["vanus", "вік"],
     ["nüüd", "тепер"],
@@ -17,7 +17,7 @@ const BASE_WORDS = {
     ["kindlasti", "обов`язково"],
     ["ütlen edasi", "передавати на словах"],
   ],
-  "10 Tund": [
+  "10 Hallo! Kas Pille on kodus?": [
     ["kutsun", "кликати"],
     ["väljas", "зовні"],
     ["küsin", "питати"],
@@ -37,11 +37,13 @@ const BASE_WORDS = {
     ["kust", "звідки"],
 
   ],
-  "12 Tund": [
+  "12 Soovin taksot tellida.": [
     ["sadam -a -at", "порт"],
-    ["soovi/ma -da -n", ""],
-    ["telli/ma -da -n", ""],
-    ["pärast", ""],
-    ["võlgne/ma -da -n", ""],
+    ["soovi/ma -da -n", "бажати"],
+    ["telli/ma -da -n", "замовляти"],
+    ["pärast", "потім, через"],
+    ["võlgne/ma -da -n", "бути винним"],
+    ["sõi/t - du -tu", "поїздка"],
+    ["pole vaja", "немає потреби"],
   ],
 };
